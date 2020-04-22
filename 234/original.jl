@@ -1,0 +1,67 @@
+function get_upper_prime(n::Float32)
+    stop::Bool = 0
+    while stop == 0
+        n += 1
+        prime::Bool = true
+        if n % 2 == 0
+            prime = false
+            continue
+        end
+        for t::Int64 = 3:2:n-1
+            if n % t == 0
+                prime = false
+                continue
+            end
+        end
+        if prime == true
+            return n
+        end
+    end
+end
+
+function moo(num::Int64)
+    lps::Int32 = 2
+    ups::Int32 = 3
+    sum::Int128 = 0
+    for n::Int64 = 5:num
+        sq::Float32 = sqrt(n)
+        if sq == ups
+            lps = ups
+            ups = get_upper_prime(sq)
+            continue
+        elseif sq > ups
+            lps = ups
+            ups = get_upper_prime(sq)
+        end
+
+        if (n % lps == 0) != (n % ups == 0)
+            sum += n
+        end
+        if n % 100000000 == 0
+            println( round(n / num, digits=4) )
+        end
+    end
+    return sum
+end
+
+using Dates
+target_num = 999966663333 # 999,966,663,333
+fraction = .001
+num = floor(fraction * target_num)
+num = convert(Int64, num)
+
+@time moo(num) 
+
+# start = Dates.Time(Dates.now())
+# ans = moo(num)
+# println(ans)
+# finish = Dates.Time(Dates.now())
+
+# println("begin: ", start)
+# println("end: ", finish)
+println("begin: ", start)
+println("end: ", finish)
+
+# 1283880710526390539
+# begin: 20:45:44.636
+# end: 01:41:03.736
