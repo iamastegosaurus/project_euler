@@ -48,15 +48,12 @@ function get_lower_prime(n::Float64)
 end
 
 function get_semi(lb::Int64, ub::Int64)
-
     lps::Int64 = get_lower_prime( sqrt(lb) )
     ups::Int64 = get_upper_prime( sqrt(lb) )
     sum::Int128 = 0
     count::Int64 = 0
-
     for n::Int64 = lb:ub
         sq::Float64 = sqrt(n)
-
         if sq == ups
             lps = ups
             ups = get_upper_prime(sq)
@@ -68,74 +65,53 @@ function get_semi(lb::Int64, ub::Int64)
         if (n % lps == 0) != (n % ups == 0)
             sum += n
             count += 1
-            #println(n)
-            #println(n, " ", lps, " ", sq, " ", ups)
         end
-    
     end
-    return sum
+    return count, sum
 end
 
 function distribute(num::Int64)
-    # println(Threads.nthreads())
-    moo::Int128 = 0
-    sizzle::Int64 = 10000000
-    n = convert(Int64, floor(num / sizzle))
-    sum = zeros(n)
+    println("threadcount ", Threads.nthreads())
+
+    final_sum::Int128 = 0
+    count::Int64 = 0
+    batch_size::Int64 = 100000000
+
+    n = convert(Int64, floor(num / batch_size))
+    if n < 1
+        n = 1
+    end
+    storage = []
+
     @sync for i::Int64 = 1:n
-        lower::Int64 = (i-1)*sizzle
-        upper::Int64 = i*sizzle - 1
+        lower::Int64 = (i-1)*batch_size
+        upper::Int64 = i*batch_size - 1
+        if upper > num
+            upper = num
+        end
         if lower == 0
             lower = 5
         end
-        Threads.@spawn sum[i] = get_semi( lower, upper )
-        if i % 1000 == 0
-            println("spawned process ", i, " of ", n + 1)
+        Threads.@spawn append!(storage, get_semi( lower, upper ))
+        println( round(i / (n+1), digits=4) )
+
+    end
+
+    append!(storage, get_semi( n*batch_size, num ))
+
+    for s = 1:convert(Int64, size(storage, 1))
+        if s % 2 == 0
+            final_sum += storage[s]
+        else
+            count += storage[s]
         end
     end
-    for i = 1:n
-        moo += sum[i]
-    end
-    println(moo, " ", n)
-    moo += get_semi( n*sizzle, num )
-    return moo
+    return count, final_sum
 end
 
 target_num = 999966663333 # 999,966,663,333
-fraction = 1
-num = convert(Int64, floor(fraction * target_num))
 
-# @time distribute(num)
+@time distribute(target_num)
 
-using Dates
-start = Dates.Time(Dates.now())
-ans = distribute(num)
-println(ans)
-
-# 48 - 30 = 18
-# 34843 - 34825 = 18
-# 2 + 4 + 5 + 7 = 18
-finish = Dates.Time(Dates.now())
-
-# spawned process 99000 of 99997
-# 1259176438982923520 99996
-# 1259187438574927249
-# begin: 22:00:23.403
-# end: 23:15:08.775
-
-println("begin: ", start)
-println("end: ", finish)
-
-# 1259187438574927249
-# 1259187438574927161
-
-# println(1259187438574927249 - 1259187438574927161)
-
-# a = get_semi(88, 88)
-# println(a)
-
-# begin: 10:18:29.106
-# end: 12:31:38.717
-
-# first attempt
-# 1283880710526390539
+# 4121.928140 seconds (451.51 k allocations: 21.604 MiB) - 1 hour 9 min
+# (3764437, 1259187438574927161)

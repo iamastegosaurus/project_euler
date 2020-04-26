@@ -22,6 +22,7 @@ end
 function moo(num::Int64)
     lps::Int32 = 2
     ups::Int32 = 3
+    semidivisible = []
     sum::Int128 = 0
     for n::Int64 = 5:num
         sq::Float32 = sqrt(n)
@@ -35,33 +36,21 @@ function moo(num::Int64)
         end
 
         if (n % lps == 0) != (n % ups == 0)
-            sum += n
+            append!(semidivisible, n)
         end
         if n % 100000000 == 0
             println( round(n / num, digits=4) )
         end
     end
-    return sum
+    for s in semidivisible
+        sum += s
+    end
+    return semidivisible, length(semidivisible), sum
 end
 
 using Dates
 target_num = 999966663333 # 999,966,663,333
-fraction = .001
-num = floor(fraction * target_num)
-num = convert(Int64, num)
 
-@time moo(num) 
-
-# start = Dates.Time(Dates.now())
-# ans = moo(num)
-# println(ans)
-# finish = Dates.Time(Dates.now())
-
-# println("begin: ", start)
-# println("end: ", finish)
-println("begin: ", start)
-println("end: ", finish)
-
-# 1283880710526390539
-# begin: 20:45:44.636
-# end: 01:41:03.736
+@time moo(10000000000) 
+#  1,000,000,000 6.8 sec
+# 10,000,000,000 125 sec
