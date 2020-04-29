@@ -1,13 +1,21 @@
 import math
 
-triangles = []
 
-for a1 in range(3, 20):
-    for a2 in range(3, 20):
-        h = math.sqrt(a1**2 + a2**2)
-        if h % 1 == 0:
-            L = a1 + a2 + h
-            triangles.append( [a1, a2, h, L] )
+def approach1():
+    for a in range(3, 500000):
+        b = a + 1
+        while True:
+            c = math.sqrt(a**2 + b**2)
+            if c % 1 == 0:
+                L = a + b + c
+                print(a, b, c)
+                break
+            else:
+                b += 1
+            
+            if b > c:
+                break
 
 
-print(triangles)
+for L in range(12, 100):
+    
