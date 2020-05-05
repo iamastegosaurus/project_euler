@@ -19,3 +19,4 @@ def approach1():
 
 for L in range(12, 100):
     
+    
