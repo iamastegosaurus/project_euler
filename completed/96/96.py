@@ -57,4 +57,4 @@ a = 0
 for item in ans_list:
     a += item
 
-print(a)
+print(a) # takes about 48 seconds
